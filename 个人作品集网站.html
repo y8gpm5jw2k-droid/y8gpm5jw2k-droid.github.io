@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>个人主页 - 内容创作者</title>
+    <style>
+        /* ==================== CSS Reset & 全局变量 ==================== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #fafafa;
+            --surface: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555555;
+            --text-muted: #888888;
+            --accent: #2563eb;
+            --accent-light: #dbeafe;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+            --radius: 1rem;
+            --radius-sm: 0.75rem;
+            --max-width: 1100px;
+            --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            padding: 1.5rem 1rem 2rem;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        /* ==================== 通用卡片样式 ==================== */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.8rem 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: box-shadow 0.2s ease;
+        }
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 板块标题 */
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1.4rem;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        /* ==================== 1. 头部首页区 ==================== */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1rem;
+            padding-top: 1rem;
+        }
+
+        /* 【可替换】头像样式 */
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e2e8f0;
+            border: 3px solid white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            /* 占位背景色，实际用图片覆盖 */
+        }
+
+        .hero h1 {
+            font-size: clamp(1.8rem, 5vw, 2.4rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+        }
+
+        .hero .tagline {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* ==================== 2. 个人数据总览板块 ==================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 0.5rem;
+        }
+        .stat-number {
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* ==================== 3. 运营账号卡片板块 ==================== */
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .account-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .account-card:hover {
+            border-color: var(--accent-light);
+            background: #f8fafc;
+        }
+
+        .platform-name {
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #1e293b;
+        }
+        .platform-icon {
+            font-size: 1.2rem;
+        }
+        .follower-count {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0.2rem 0;
+        }
+        .account-link {
+            font-size: 0.8rem;
+            color: var(--accent);
+            text-decoration: none;
+            word-break: break-all;
+        }
+        .account-link:hover {
+            text-decoration: underline;
+        }
+        .account-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+            line-height: 1.4;
+        }
+
+        /* ==================== 4. 视频作品板块 ==================== */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* 视频容器 —— 自适应16:9占位，后续替换iframe */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 */
+            background: #1e1e1e;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        /* 占位图覆盖在容器上，替换iframe后可删除此div */
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            background: #334155;
+        }
+
+        /* 后续你放入iframe时的样式（默认隐藏iframe示例） */
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .video-title {
+            margin-top: 0.6rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: #1e293b;
+        }
+
+        /* ==================== 5. 文案与SOP折叠区块 ==================== */
+        .accordion {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            margin-bottom: 0.8rem;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 1rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: background 0.15s;
+        }
+        .accordion-header:hover {
+            background: #f9fafb;
+        }
+
+        .accordion-icon {
+            font-size: 1.3rem;
+            transition: transform 0.2s ease;
+            color: var(--text-muted);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.2s ease;
+            background: #ffffff;
+            padding: 0 1.2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .accordion.open .accordion-content {
+            max-height: 600px; /* 足够展示文字 */
+            padding: 0.8rem 1.2rem 1.2rem;
+        }
+
+        .accordion.open .accordion-icon {
+            transform: rotate(45deg);
+        }
+
+        /* ==================== 6. 底部联系方式 ==================== */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 0 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: 1rem;
+        }
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        /* ==================== 响应式调整 ==================== */
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem 0.8rem 1.5rem;
+            }
+            .card {
+                padding: 1.2rem 1rem;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+            .accounts-grid {
+                grid-template-columns: 1fr;
+            }
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* 工具类 */
+        .text-muted {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- ==================== 1. 头部首页区 ==================== -->
+        <!-- 【可替换】姓名、简介文字 -->
+        <section class="hero card">
+            <!-- 【可替换】头像图片：avatar.jpg (占位) -->
+            <img 
+            src="avatar.jpg" 
+            alt="头像占位" 
+            class="avatar"
+            loading="lazy"
+            onerror="this.style.background='#cbd5e1'; this.style.border='2px dashed #94a3b8';"
+            >
+            <h1>【可替换】你的姓名</h1>
+            <p class="tagline">【可替换】内容创作者 | 视频博主 | 全平台运营 · 用镜头记录生活</p>
+        </section>
+
+        <!-- ==================== 2. 个人数据总览板块 ==================== -->
+        <!-- 【可替换】数字：总粉丝、总播放量等 -->
+        <section class="card">
+            <h2 class="section-title">数据总览</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">128K</div>
+                    <div class="stat-label">【可替换】总粉丝</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5.2M</div>
+                    <div class="stat-label">【可替换】总播放量</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">86</div>
+                    <div class="stat-label">【可替换】发布作品</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">4.8%</div>
+                    <div class="stat-label">【可替换】互动率</div>
+                </div>
+            </div>
+            <p class="text-muted" style="margin-top:0.8rem;">* 数据截止2026.07，定期更新</p>
+        </section>
+
+        <!-- ==================== 3. 运营账号卡片板块 (5个账号) ==================== -->
+        <!-- 【可替换】每个卡片的平台名称、粉丝数字、主页链接、亮点描述 -->
+        <section class="card">
+            <h2 class="section-title">运营账号</h2>
+            <div class="accounts-grid">
+                <!-- 账号1 -->
+                <div class="account-card">
+                    <span class="platform-name"><span class="platform-icon">▶️</span> 【可替换】YouTube</span>
+                    <span class="follower-count">45.2K</span>
+                    <a href="#" class="account-link" target="_blank" rel="noopener">【可替换】youtube.com/@yourhandle</a>
+                    <p class="account-desc">【可替换】长视频深度测评，周更2期</p>
+                </div>
+                <!-- 账号2 -->
+                <div class="account-card">
+                    <span class="platform-name"><span class="platform-icon">📷</span> 【可替换】Instagram</span>
+                    <span class="follower-count">32.8K</span>
+                    <a href="#" class="account-link" target="_blank" rel="noopener">【可替换】instagram.com/yourhandle</a>
+                    <p class="account-desc">【可替换】视觉故事，日更图文</p>
+                </div>
+                <!-- 账号3 -->
+                <div class="account-card">
+                    <span class="platform-name"><span class="platform-icon">🎵</span> 【可替换】TikTok</span>
+                    <span class="follower-count">78.1K</span>
+                    <a href="#" class="account-link" target="_blank" rel="noopener">【可替换】tiktok.com/@yourhandle</a>
+                    <p class="account-desc">【可替换】短视频爆款，15s高光剪辑</p>
+                </div>
+                <!-- 账号4 -->
+                <div class="account-card">
+                    <span class="platform-name"><span class="platform-icon">🐦</span> 【可替换】Twitter/X</span>
+                    <span class="follower-count">12.3K</span>
+                    <a href="#" class="account-link" target="_blank" rel="noopener">【可替换】x.com/yourhandle</a>
+                    <p class="account-desc">【可替换】行业观点，实时互动</p>
+                </div>
+                <!-- 账号5 -->
+                <div class="account-card">
+                    <span class="platform-name"><span class="platform-icon">📘</span> 【可替换】Facebook</span>
+                    <span class="follower-count">18.6K</span>
+                    <a href="#" class="account-link" target="_blank" rel="noopener">【可替换】facebook.com/yourpage</a>
+                    <p class="account-desc">【可替换】社群运营，粉丝深度交流</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 4. 视频作品板块 (iframe预留) ==================== -->
+        <!-- 【可替换】视频iframe代码，目前使用cover1.jpg、cover2.jpg占位 -->
+        <section class="card">
+            <h2 class="section-title">精选作品</h2>
+            <div class="video-grid">
+                <!-- 视频1 -->
+                <div>
+                    <div class="video-wrapper">
+                        <!-- 占位图，替换为iframe后删除此img标签 -->
+                        <img src="cover1.jpg" alt="视频封面占位" class="video-placeholder" loading="lazy">
+                        <!-- 【可替换】示例iframe (默认隐藏，替换时删除占位图并取消注释iframe)
+                        <iframe src="https://www.youtube.com/embed/视频ID" allowfullscreen loading="lazy"></iframe>
+                        -->
+                    </div>
+                    <p class="video-title">【可替换】作品标题一</p>
+                </div>
+                <!-- 视频2 -->
+                <div>
+                    <div class="video-wrapper">
+                        <img src="cover2.jpg" alt="视频封面占位" class="video-placeholder" loading="lazy">
+                        <!-- 【可替换】iframe预留 -->
+                    </div>
+                    <p class="video-title">【可替换】作品标题二</p>
+                </div>
+                <!-- 视频3 (可继续增加) -->
+                <div>
+                    <div class="video-wrapper">
+                        <img src="cover1.jpg" alt="视频封面占位" class="video-placeholder" loading="lazy">
+                        <!-- 【可替换】iframe预留 -->
+                    </div>
+                    <p class="video-title">【可替换】作品标题三</p>
+                </div>
+            </div>
+            <p class="text-muted" style="margin-top:1rem;">* 视频使用iframe嵌入，替换时直接将占位图替换为平台嵌入代码。</p>
+        </section>
+
+        <!-- ==================== 5. 文案与SOP展示折叠区块 ==================== -->
+        <!-- 【可替换】折叠面板内的文案内容 -->
+        <section class="card">
+            <h2 class="section-title">文案 & SOP</h2>
+
+            <!-- 折叠项1：文案展示 -->
+            <div class="accordion">
+                <button class="accordion-header" aria-expanded="false">
+                    📄 精选文案
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-content">
+                    【可替换】<br>
+                    这里是你的文案内容占位。请直接复制粘贴你的文案到这里。<br>
+                    支持多行文字，可自由换行。<br><br>
+                    示例：“如何在30天内提升视频质感？关键在于光线与收音……”
+                </div>
+            </div>
+
+            <!-- 折叠项2：SOP流程 -->
+            <div class="accordion">
+                <button class="accordion-header" aria-expanded="false">
+                    📋 内容创作SOP
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-content">
+                    【可替换】<br>
+                    1. 选题脑暴 (每周一)<br>
+                    2. 脚本撰写 (周二-周三)<br>
+                    3. 拍摄执行 (周四)<br>
+                    4. 后期剪辑 (周五-周六)<br>
+                    5. 多平台发布与数据复盘 (周日)
+                </div>
+            </div>
+
+            <!-- 折叠项3：合作流程 -->
+            <div class="accordion">
+                <button class="accordion-header" aria-expanded="false">
+                    🤝 商务合作SOP
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-content">
+                    【可替换】<br>
+                    合作邮箱：your-email@example.com<br>
+                    通常回复时效：24小时内<br>
+                    合作方式：产品测评 / 品牌露出 / 专属折扣码
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 6. 底部联系方式 ==================== -->
+        <!-- 【可替换】邮箱、社交媒体链接等 -->
+        <footer class="footer">
+            <div class="footer-links">
+                <a href="mailto:【可替换】your-email@example.com">📧 Email</a>
+                <a href="#" target="_blank" rel="noopener">▶️ YouTube</a>
+                <a href="#" target="_blank" rel="noopener">📷 Instagram</a>
+                <a href="#" target="_blank" rel="noopener">💼 LinkedIn</a>
+            </div>
+            <p>© 2026 【可替换】你的姓名. 保留所有权利.</p>
+            <p class="text-muted" style="margin-top:0.3rem;">个人作品集 · 干净简约</p>
+        </footer>
+    </div>
+
+    <!-- ==================== 折叠交互 JavaScript ==================== -->
+    <script>
+        (function() {
+            // 获取所有折叠面板
+            const accordions = document.querySelectorAll('.accordion');
+            
+            accordions.forEach(acc => {
+                const header = acc.querySelector('.accordion-header');
+                if (!header) return;
+                
+                header.addEventListener('click', function() {
+                    // 判断当前是否已打开
+                    const isOpen = acc.classList.contains('open');
+                    
+                    // 可选：关闭其他所有折叠 (手风琴效果)，若不需要可注释掉下面循环
+                    // accordions.forEach(item => item.classList.remove('open'));
+                    
+                    // 切换当前折叠状态
+                    if (isOpen) {
+                        acc.classList.remove('open');
+                        header.setAttribute('aria-expanded', 'false');
+                    } else {
+                        acc.classList.add('open');
+                        header.setAttribute('aria-expanded', 'true');
+                    }
+                });
+            });
+
+            // 图片占位错误处理 (避免缺失图片显示破损图标)
+            document.querySelectorAll('img').forEach(img => {
+                img.addEventListener('error', function() {
+                    this.style.background = '#e2e8f0';
+                    this.style.border = '1px dashed #94a3b8';
+                    this.style.minHeight = '80px';
+                    this.alt = '图片占位 (缺失)';
+                });
+            });
+
+            console.log('✅ 个人作品集页面已就绪，所有【可替换】区域等待填充。');
+        })();
+    </script>
+</body>
+</html>
